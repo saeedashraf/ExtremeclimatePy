@@ -40,7 +40,9 @@ class read_data:
             tempName = str(self.args[i]) + 'Folder'
             tempName = os.path.join(inputFolder, self.args[i])
             varFolder.append(tempName)
+        print('*******1*********')
         print(varFolder)
+        print('****************')
    
         climate_ref_Folder = os.path.join(inputFolder, 'Climate_ref')
         climate_Ref_Folder_org = os.path.join(inputFolder, 'Climate_ref_no_randomness_0')
@@ -57,9 +59,13 @@ class read_data:
         for filename in os.walk(climate_ref_Folder):
             climate_ref_Files = filename[2]
 
+        print('******2**********')
         print(filesA[0])
         print(filesA[1])
+        print('****************')
+        print('******3**********')
         print(climate_ref_Files)
+        print('****************')
         '''Step 3-4-5: Reading files inside Tmax folder '''
         #x1TmaxThershold
         weights_Var = [ 'weights_' + (str(self.args[i])) for i in range (len(self.args))] 
@@ -79,26 +85,42 @@ class read_data:
             weights_Var[i] = weights_Var[i].replace('\n', '\t').split('\t')
             day_Var[i]  = day_Var[i] .replace('\n', '\t').split('\t')
             xVarThershold[i] = xVarThershold[i].replace('\n', '\t').split('\t')
-
-        
-        '''Step 6: Reading the lines of files inside climate folder''' 
-        os.chdir(climate_ref_Folder)
-        
-        with open('pcp.txt', 'r') as file:
-            pcpData = file.read()
-        with open('tmp.txt', 'r') as file:
-            tmpData = file.read()
-            
-        pcpData = pcpData.split('\n')
-        
-        for i in range(len(pcpData)):
-            pcpData[i] = pcpData[i].split(',')
-        
-
-
+        print('******4**********')
         print(weights_Var)
         print(day_Var)
         print(xVarThershold)
+        print('****************')
+       
+
+        '''Step 6: Reading the lines of files inside climate folder''' 
+        os.chdir(climate_ref_Folder)
+        #if any('.txt' in s for s in climate_ref_Files):
+        #matching = [s for s in climate_ref_Files if ".txt" in s]
+        climateTxtFiles = [(str(self.args[i])).lower() + '.txt' for i in range (len(self.args))] 
+        climateData = [(str(self.args[i])).lower() + 'Data' for i in range (len(self.args))]
+        
+        print('********5********')
+        print(climateTxtFiles)
+        print(climateData)
+        print('****************')
+
+
+        for i in range(len(self.args)):
+            with open(climateTxtFiles[i], 'r') as file:
+                climateData[i] = file.read()
+
+            climateData[i] =  climateData[i].split('\n')
+
+            for j in range(len(climateData[i])):
+               climateData[i][j] = climateData[i][j].split(',')
+
+        print('******6**********')
+        print(climateData)
+        print('****************')
+
+                
+
+
 
 
 
