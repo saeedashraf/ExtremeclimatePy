@@ -15,22 +15,22 @@ from matplotlib import pyplot as plt
 
 
 
-
-class read_data:
+class read_inputdata:
     
     def __init__(self, root, *args, **kwargs):
         self.root = root
         self.args = args
         self.kwargs = kwargs  
     
-    def _initial_dict(self):
+    def _initiate_dict(self, *args, **kwargs):
+        """returnes a tuple first element is a dictionary we later assign all the variables and second element is list of variables names"""
         tempdict = {self.arg: 'None' for self.arg in self.args}
         varName = [self.arg for self.arg in self.args]
         return tempdict, varName
         
     def _initialize_input_dict(self):
         ''' This function returns a dictionary , and addresses of all folders'''
-        
+
         '''Step 1''' 
         rootFolder = self.root
         inputFolder = os.path.join(rootFolder,'input')
@@ -91,7 +91,6 @@ class read_data:
         print(xVarThershold)
         print('****************')
        
-
         '''Step 6: Reading the lines of files inside climate folder''' 
         os.chdir(climate_ref_Folder)
         #if any('.txt' in s for s in climate_ref_Files):
@@ -108,9 +107,7 @@ class read_data:
         for i in range(len(self.args)):
             with open(climateTxtFiles[i], 'r') as file:
                 climateData[i] = file.read()
-
             climateData[i] =  climateData[i].split('\n')
-
             for j in range(len(climateData[i])):
                climateData[i][j] = climateData[i][j].split(',')
 
@@ -118,14 +115,58 @@ class read_data:
         print(climateData)
         print('****************')
 
+        '''Step 7: Initialazing the input dictionary of climate stations which holds the information of the stations'''
+        #Should be updated for individual variables!! and not only pcp!
+        nameStn = []
+        for file in climate_ref_Files:
+            if 'p.csv' in file:
+                #nameStn.append('n_' + file[-25: -5])
+                nameStn.append(file[-25: -5])
+
+        print('******7**********')
+        print(nameStn)
+        print('****************')
+        
+        stnDicts = []
+        for i in range(len(nameStn)):
+            stnDicts.append(self._initiate_dict({'fileName: None'}))
+
+        print('******8**********')
+        print(stnDicts)
+        print('****************')
+
+        '''Step 8: Assigning the file names to the dictionary'''
+        for i in range (len(nameStn)):
+            stnDicts[i][0]['fileName'] = nameStn[i]
+
+        print('******9**********')
+        print(stnDicts)
+        print(stnDicts[0])
+        print(stnDicts[1])
+        print(day_Var)
+        print(stnDicts[0][0]['fileName']) #tupple and stations
+        print(stnDicts[1][1]['fileName']) #tupple and stations
+
+        print('********************************************')
+
+        for i in range(len(self.args)):
+            for j, element in enumerate(day_Var[i]):
+                    if element == stnDicts[j][0]['fileName']:
+                        print('helllloooo')
+                        
+
+
+        
+
+
                 
 
 
 
 
 
-a = read_data(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin')
-b1, b2 = a._initial_dict()
+a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin')
+b1, b2 = a._initiate_dict()
 print(b1)
 print(b2)
 c = a._initialize_input_dict()
