@@ -1,7 +1,7 @@
 
-# 1.take csv files 
+# 1.take csv and txt files 
 # 2. read the variables and creat dictionary
-# 3-
+# 3- 
 
 import os
 import os.path
@@ -26,7 +26,7 @@ class read_inputdata:
         """returnes a tuple first element is a dictionary we later assign all the variables and second element is list of variables names"""
         tempdict = {self.arg: 'None' for self.arg in self.args}
         varName = [self.arg for self.arg in self.args]
-        return tempdict, varName
+        return tempdict
         
     def _initialize_input_dict(self):
         ''' This function returns a dictionary , and addresses of all folders'''
@@ -68,25 +68,25 @@ class read_inputdata:
         print('****************')
         '''Step 3-4-5: Reading files inside Tmax folder '''
         #x1TmaxThershold
-        weights_Var = [ 'weights_' + (str(self.args[i])) for i in range (len(self.args))] 
+        #weights_Var = [ 'weights_' + (str(self.args[i])) for i in range (len(self.args))] 
         day_Var = [ 'day_' + (str(self.args[i])) for i in range (len(self.args))]
         xVarThershold = [ 'x' + str(i+1) + (str(self.args[i]) + 'Thershold') for i in range (len(self.args))]
 
         for i in range(len(self.args)):
             os.chdir(varFolder[i])                
-            with open(filesA[i][0], 'r') as file:
-                weights_Var[i] = file.read()
+            #with open(filesA[i][0], 'r') as file:
+             #   weights_Var[i] = file.read()
             with open(filesA[i][1], 'r') as file:
                 day_Var[i] = file.read()
             with open(filesA[i][2], 'r') as file:
                 xVarThershold[i] = file.read()
         
             '''Step 3-4-5: Reading the lines of files inside Tmax folder'''
-            weights_Var[i] = weights_Var[i].replace('\n', '\t').split('\t')
+            #weights_Var[i] = weights_Var[i].replace('\n', '\t').split('\t')
             day_Var[i]  = day_Var[i] .replace('\n', '\t').split('\t')
             xVarThershold[i] = xVarThershold[i].replace('\n', '\t').split('\t')
         print('******4**********')
-        print(weights_Var)
+        #print(weights_Var)
         print(day_Var)
         print(xVarThershold)
         print('****************')
@@ -109,7 +109,7 @@ class read_inputdata:
                 climateData[i] = file.read()
             climateData[i] =  climateData[i].split('\n')
             for j in range(len(climateData[i])):
-               climateData[i][j] = climateData[i][j].split(',')
+                climateData[i][j] = climateData[i][j].split(',')
 
         print('******6**********')
         print(climateData)
@@ -129,7 +129,8 @@ class read_inputdata:
         
         stnDicts = []
         for i in range(len(nameStn)):
-            stnDicts.append(self._initiate_dict({'fileName: None'}))
+            stnDicts.append(self._initiate_dict())
+
 
         print('******8**********')
         print(stnDicts)
@@ -137,37 +138,56 @@ class read_inputdata:
 
         '''Step 8: Assigning the file names to the dictionary'''
         for i in range (len(nameStn)):
-            stnDicts[i][0]['fileName'] = nameStn[i]
+            stnDicts[i]['fileName'] = nameStn[i]
 
         print('******9**********')
         print(stnDicts)
         print(stnDicts[0])
         print(stnDicts[1])
         print(day_Var)
-        print(stnDicts[0][0]['fileName']) #tupple and stations
-        print(stnDicts[1][1]['fileName']) #tupple and stations
-
+        print(xVarThershold)
+        #print(stnDicts[0]['fileName']) #tupple and stations
         print('********************************************')
 
+        print(stnDicts[1]['fileName']) #tupple and stations
+
+        print('********************************************')
+        '''Step 9_1: Assigning the Tamx, Tmin, Hmd, Pcp, Slr and Wnd values'''
+
+        _temp_DayVar= ['DayTmax', 'DayTmin']
+        _temp_ValVar= ['ValTmax', 'ValTmin']
+        _temp_DayVar= [ 'day_' + (str(self.args[i])) for i in range (len(self.args))]
+        _temp_ValVar= [ 'x' + str(i+1) + (str(self.args[i]) + 'Thershold') for i in range (len(self.args))]
         for i in range(len(self.args)):
             for j, element in enumerate(day_Var[i]):
-                    if element == stnDicts[j][0]['fileName']:
+                for k in range (len(nameStn)):
+                    if element == stnDicts[k]['fileName']:
                         print('helllloooo')
-                        
-
-
-        
-
-
+                        print(element)
+                        print(day_Var[i][j+1])
+                        stnDicts[k][_temp_DayVar[i]] = day_Var[i][j+1]
+            for j, element in enumerate(xVarThershold[i]):
+                for k in range (len(nameStn)):  
+                    if element == stnDicts[k]['fileName']:
+                        stnDicts[k][_temp_ValVar[i]] = xVarThershold[i][j+1]
+            
+        print(stnDicts)
+        '''Step 10: Assigning the elevation, Lat and long to the dictionaries'''
+        for i in range(len(stnDicts)):
+            for j in range(1, len(pcpData)):
                 
+                #if pcpData[j][1][2:-1] == stnDicts[i]['fileName'][2:]:
+                if pcpData[j][1][:-1] == stnDicts[i]['fileName'][:]:
+                    stnDicts[i]['lat']= pcpData[j][2]
+                    stnDicts[i]['long']= pcpData[j][3]
+                    stnDicts[i]['elev']= pcpData[j][4]
 
 
-
-
-
+#a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin', day_Tmax0 = 0, day_Tmin=0)
 a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin')
-b1, b2 = a._initiate_dict()
+
+b1 = a._initiate_dict()
 print(b1)
-print(b2)
+
 c = a._initialize_input_dict()
 #print(c)
