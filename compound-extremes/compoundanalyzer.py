@@ -1,7 +1,7 @@
 
 # 1.take csv and txt files 
 # 2. read the variables and creat dictionary
-# 3- 
+# 3- ...
 
 import os
 import os.path
