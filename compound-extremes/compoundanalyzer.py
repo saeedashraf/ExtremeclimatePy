@@ -172,15 +172,21 @@ class read_inputdata:
                         stnDicts[k][_temp_ValVar[i]] = xVarThershold[i][j+1]
             
         print(stnDicts)
+        print("***********************************************************************************************************")
         '''Step 10: Assigning the elevation, Lat and long to the dictionaries'''
         for i in range(len(stnDicts)):
-            for j in range(1, len(pcpData)):
-                
-                #if pcpData[j][1][2:-1] == stnDicts[i]['fileName'][2:]:
-                if pcpData[j][1][:-1] == stnDicts[i]['fileName'][:]:
-                    stnDicts[i]['lat']= pcpData[j][2]
-                    stnDicts[i]['long']= pcpData[j][3]
-                    stnDicts[i]['elev']= pcpData[j][4]
+            print(climateData[i])
+            for j in range(0, len(climateData[i])):
+                print("*******")
+                print(climateData[i][j])
+                if climateData[i][j][1][:-1] == stnDicts[i]['fileName'][:]:
+                    print("AA")
+                    stnDicts[i]['lat']= climateData[i][j][2]
+                    stnDicts[i]['long']= climateData[i][j][3]
+                    stnDicts[i]['elev']= climateData[i][j][4]
+        
+        print("***********************************************************************************************************")
+        print(stnDicts)
 
 
 #a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin', day_Tmax0 = 0, day_Tmin=0)
