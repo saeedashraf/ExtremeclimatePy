@@ -1,7 +1,8 @@
 
 # 1.take csv and txt files 
 # 2. read the variables and creat dictionary
-# 3- ...
+# 3- read text files, csvs, etc
+
 
 import os
 import os.path
@@ -14,6 +15,9 @@ import time
 from matplotlib import pyplot as plt
 
 
+from datetime import timedelta, date
+
+import collections
 
 class read_inputdata:
     
@@ -37,7 +41,7 @@ class read_inputdata:
         
         varFolder = []
         for i in range(len(self.args)):
-            tempName = str(self.args[i]) + 'Folder'
+            #tempName = str(self.args[i]) + 'Folder'
             tempName = os.path.join(inputFolder, self.args[i])
             varFolder.append(tempName)
         print('*******1*********')
@@ -103,7 +107,6 @@ class read_inputdata:
         print(climateData)
         print('****************')
 
-
         for i in range(len(self.args)):
             with open(climateTxtFiles[i], 'r') as file:
                 climateData[i] = file.read()
@@ -130,7 +133,6 @@ class read_inputdata:
         stnDicts = []
         for i in range(len(nameStn)):
             stnDicts.append(self._initiate_dict())
-
 
         print('******8**********')
         print(stnDicts)
@@ -172,10 +174,10 @@ class read_inputdata:
                         stnDicts[k][_temp_ValVar[i]] = xVarThershold[i][j+1]
             
         print(stnDicts)
-        print("***********************************************************************************************************")
+        print("***********************************************CCC************************************************************")
         '''Step 10: Assigning the elevation, Lat and long to the dictionaries'''
         for i in range(len(stnDicts)):
-            print(climateData[i])
+            #print(climateData[i])
             for j in range(0, len(climateData[i])):
                 print("*******")
                 print(climateData[i][j])
@@ -185,15 +187,204 @@ class read_inputdata:
                     stnDicts[i]['long']= climateData[i][j][3]
                     stnDicts[i]['elev']= climateData[i][j][4]
         
-        print("***********************************************************************************************************")
+        print("***************************************************AAAA********************************************************")
         print(stnDicts)
+        return stnDicts, inputFolder, varFolder, climate_ref_Folder, \
+            climate_Ref_Folder_org, climate_ref_Folder_rand_1, climate_ref_Folder_rand_2
 
 
-#a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin', day_Tmax0 = 0, day_Tmin=0)
-a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin')
+#a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin')
 
-b1 = a._initiate_dict()
-print(b1)
+#b1 = a._initiate_dict()
+#print(b1)
 
-c = a._initialize_input_dict()
+#c = a._initialize_input_dict()
 #print(c)
+
+
+class _helper:
+
+    def __init__(self,src, dst, start_date, end_date, symlinks=False, ignore=None):
+        self.src = src
+        self.dst = dst
+        self.start_date = start_date
+        self.end_date = end_date
+        self.symlinks = symlinks
+        self.ignore=ignore
+
+
+    def copytree(self):
+        for item in os.listdir(self.src):
+            s = os.path.join(self.src, item)
+            d = os.path.join(self.dst, item)
+            if os.path.isdir(s):
+                shutil.copytree(s, d, self.symlinks, self.ignore)
+            else:
+                shutil.copy2(s, d)
+    ## 1st column as index: makaing date from 01 01 1981 to 2099 12 31
+    from datetime import timedelta, date
+
+    def daterange(self):
+        for n in range(int ((self.end_date - self.start_date ).days + 1)):
+            yield self.start_date + timedelta(n)
+
+
+class RCP_Model:
+    def __init__(self, xRCP, xClimateModel):
+        self.input1 = round(xRCP)
+        #self.input1 = xRCP
+        self.input2 = xClimateModel  
+        
+    def rcpGenerator(self):
+        if self.input1 == 1:
+            RCP = str(2.6)
+            rcpInt = 1
+        if self.input1 == 2:
+            RCP = str(4.5)
+            rcpInt = 2
+        if self.input1 == 3:
+            RCP = str(8.5)
+            rcpInt = 3
+        return(RCP, rcpInt)
+
+    
+    def climateModel(self):
+        a, b = RCP_Model.rcpGenerator(self)
+        
+        if b == 1:
+            climateModel = round(self.input2*11)
+            
+        elif b == 2:
+            climateModel = 11 + max(1,round(self.input2*25))
+            
+        else:
+            climateModel = 36 + max(1, round(self.input2*31))
+            
+        return (int(climateModel))
+
+
+class solver_CCD(read_inputdata):
+    def __init__(self, root, xRCP, xClimateModel, Xfactor1, *args, **kwargs):
+        super().__init__(root, *args, **kwargs)
+        self.xRCP=xRCP
+        self.xClimateModel = xClimateModel
+        self.Xfactor1 = Xfactor1
+
+    def _print(self):
+        print(self.xRCP)
+        print(self.xClimateModel)
+        print(self.root)
+        print(self.args)
+        print(self.Xfactor1)
+        print(self.kwargs)
+        return
+
+    def ccd_calc(self):
+
+        caseStudyStns, inputFolder, varFolder, climateFolder, \
+            climateFolder_org, climateFolder1, \
+                 climateFolder2 = self._initialize_input_dict()
+
+        
+        xClimateRandomness = round(self.Xfactor1)
+
+        if (xClimateRandomness == 1):
+            os.chdir(climateFolder_org)
+            src = os.getcwd()
+            os.chdir(climateFolder)
+            dst = os.getcwd()
+            #copytree(src, dst)
+            print('Original CH2018 is being used')
+        elif (xClimateRandomness == 2) :
+            os.chdir(climateFolder1)
+            src = os.getcwd()
+            os.chdir(climateFolder)
+            dst = os.getcwd()
+            #copytree(src, dst)
+            print('Random Climate realization version 1 is being used')
+        else:
+            os.chdir(climateFolder2)
+            src = os.getcwd()
+            os.chdir(climateFolder)
+            dst = os.getcwd()
+            #copytree(src, dst)
+            print('Random Climate realization version 2 is being used')
+
+        
+        os.chdir(climateFolder)
+        fnames = os.listdir()
+        #randomness_pcp_tmp(fnames, Xfactor1)
+
+        print('HDNs_DMDU: Matching the station names values with CSV files!')   
+        
+        '''Matching the station names values in the dictionary of stations with CSV files in Climate folder of the case Study'''
+        
+        _VarCaseStudy = [ [] for i in range (len(self.args))]
+
+
+        print("TTTTTTT")
+        print(_VarCaseStudy)
+        print(type(_VarCaseStudy[0]))
+
+
+        varCaseStudy  = collections.OrderedDict()
+        dfvar  = collections.OrderedDict()
+        for i in range(len(_VarCaseStudy)):
+            #d["{0}".format( 'x' + str(i+1) + (str(self.args[i]) + 'Thershold'))] = []
+            varCaseStudy["{0}".format(str(self.args[i]) + 'CaseStudy')] = []
+        
+        print(varCaseStudy)
+
+        ### t.csv should be changed for tmin.csv and tmax.csv at the moment we read both in a same file but this should chamnge in future 
+
+
+        if (xClimateRandomness == 1):
+            for i in range(len(_VarCaseStudy)):
+                #for j in range(len(caseStudyStns)):
+                    #d[i].append(os.path.join(climateFolder, caseStudyStns[j]['fileName'] + 't.csv'))
+                for key, value in varCaseStudy.items():
+                    varCaseStudy[key].append(os.path.join(climateFolder_org, caseStudyStns[i]['fileName'] + 't.csv'))
+
+        if (xClimateRandomness == 2):
+            for i in range(len(_VarCaseStudy)):
+                for key, value in varCaseStudy.items():
+                    varCaseStudy[key].append(os.path.join(climateFolder1, caseStudyStns[i]['fileName'] + 't.csv'))
+
+        if (xClimateRandomness == 3):
+            for i in range(len(_VarCaseStudy)):
+                for key, value in varCaseStudy.items():
+                    varCaseStudy[key].append(os.path.join(climateFolder2, caseStudyStns[i]['fileName'] + 't.csv'))
+                    #dfvar['df' + "{0}".format(str(self.args[i]))] = [None for _ in range(len(d[key]))]        
+        
+        varCaseStudykeys = list(varCaseStudy.keys())
+
+        print(varCaseStudy)
+        print(varCaseStudy[key])
+        print('HDNs_DMDU: Building a database for each csv file (tmp, pcp, hmd, slr, wnd)!')
+        
+        '''Step 6: building a database for each precipitation and temperature file in Climate folder and saving them in a list'''
+
+        dfvar  = collections.OrderedDict()
+        for i in range(len(_VarCaseStudy)):
+            dfvar['df' + "{0}".format(str(self.args[i]))] = [None for _ in range(len(varCaseStudy[key]))]
+        
+        dfvarkeys = list(dfvar.keys())
+        print(dfvarkeys)
+
+        print(dfvar)
+        print(dfvar[dfvarkeys[1]][0])
+
+        for i in range(len(dfvar)):
+            for j in range(len(dfvar[dfvarkeys[i]])):
+                dfvar[dfvarkeys[i]][j] = pd.read_csv(varCaseStudy[varCaseStudykeys[i]][j])
+
+ 
+
+CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 22, 0.87, 'Tmax','Tmin')
+y = CCD.ccd_calc()
+
+
+
+
+print("********************************EEEEENNNNNDDDDD********************************")
+
