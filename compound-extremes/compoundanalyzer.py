@@ -328,10 +328,10 @@ class solver_CCD(read_inputdata):
 
 
         varCaseStudy  = collections.OrderedDict()
-        dfvar  = collections.OrderedDict()
         for i in range(len(_VarCaseStudy)):
             #d["{0}".format( 'x' + str(i+1) + (str(self.args[i]) + 'Thershold'))] = []
             varCaseStudy["{0}".format(str(self.args[i]) + 'CaseStudy')] = []
+
         
         print(varCaseStudy)
 
@@ -363,7 +363,7 @@ class solver_CCD(read_inputdata):
         print('HDNs_DMDU: Building a database for each csv file (tmp, pcp, hmd, slr, wnd)!')
         
         '''Step 6: building a database for each precipitation and temperature file in Climate folder and saving them in a list'''
-
+        '''6.1 reading the csv files as databases'''
         dfvar  = collections.OrderedDict()
         for i in range(len(_VarCaseStudy)):
             dfvar['df' + "{0}".format(str(self.args[i]))] = [None for _ in range(len(varCaseStudy[key]))]
@@ -374,13 +374,59 @@ class solver_CCD(read_inputdata):
         print(dfvar)
         print(dfvar[dfvarkeys[1]][0])
 
+
+        dfvarCol  = collections.OrderedDict()
+        for i in range(len(_VarCaseStudy)):
+            #d["{0}".format( 'x' + str(i+1) + (str(self.args[i]) + 'Thershold'))] = []
+            dfvarCol['df' + "{0}".format(str(self.args[i]) + 'Col')] = [None for _ in range(len(varCaseStudy[key]))]
+
+        dfvarColKey = list(dfvarCol.keys())
+        #dfvarCol = ['df' + "{0}".format(str(self.args[i]) + 'Col') for i in range(len(self.args))]
         for i in range(len(dfvar)):
             for j in range(len(dfvar[dfvarkeys[i]])):
                 dfvar[dfvarkeys[i]][j] = pd.read_csv(varCaseStudy[varCaseStudykeys[i]][j])
+                #dfvarCol[i] = dfvar[dfvarkeys[i]][j][0]
+                dfvarCol[dfvarColKey[i]][j] = dfvar[dfvarkeys[i]][j].columns # from two stations we only take the first one's columns assuming it's same for both
+                
+        '''6.2 making a header for output files'''
+        print('end 111')
 
- 
+        '''6.3 defining the length of simulations and scenarios'''
+        scenariosLength = int(len(dfvarCol[dfvarColKey[0]][0]) / 2)
+        #simulationLength = len(dftmp[0][dftmpCol[0]]) - 1
+            
+        '''Reading the beginning and end of the simulation''' 
 
+        
+        for single_date in _temp_helper.daterange():
+            dateList.append(single_date.strftime("%m/%d/%Y"))
+        
+        start_year = _temp_helper.start_date.year
+        end_year= _temp_helper.end_date.year + 1
+        print(start_year)
+        print(end_year)
+        #print(dateList)
+
+        seasonList = []
+        for n in range (start_year, end_year + 1, 1):
+            seasonList.append(str(n))
+        
+
+        print(scenariosLength)
+        #print(simulationLength)
+
+
+
+###### START Of the API ######
 CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 22, 0.87, 'Tmax','Tmin')
+
+src = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten'
+dst = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten'
+start_date = date(1981, 1, 1)
+end_date = date(2020, 12, 31)
+dateList = []
+_temp_helper = _helper(src, dst, start_date, end_date)
+
 y = CCD.ccd_calc()
 
 
