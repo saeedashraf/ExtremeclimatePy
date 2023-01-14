@@ -154,7 +154,7 @@ class read_inputdata:
         print(stnDicts[1]['fileName']) #tupple and stations
 
         print('********************************************')
-        '''Step 9_1: Assigning the Tamx, Tmin, Hmd, Pcp, Slr and Wnd values'''
+        '''Step 9_1: Assigning the Tamx, Tmin, Hmd, Pcp, Slr, Wnd, etc values'''
 
         _temp_DayVar= ['DayTmax', 'DayTmin']
         _temp_ValVar= ['ValTmax', 'ValTmin']
@@ -248,7 +248,7 @@ class RCP_Model:
         return(RCP, rcpInt)
 
     
-    def climateModel(self):
+    def climateModel(self): # 11, 25, 31 are for MeteoSwiss data only
         a, b = RCP_Model.rcpGenerator(self)
         
         if b == 1:
@@ -319,7 +319,7 @@ class solver_CCD(read_inputdata):
         
         '''Matching the station names values in the dictionary of stations with CSV files in Climate folder of the case Study'''
         
-        _VarCaseStudy = [ [] for i in range (len(self.args))]
+        _VarCaseStudy = [ [] for i in range (len(self.args))] # IMPORTANT !!! we should change and ask useres to gice us the number
 
 
         print("TTTTTTT")
@@ -359,7 +359,7 @@ class solver_CCD(read_inputdata):
         varCaseStudykeys = list(varCaseStudy.keys())
 
         print(varCaseStudy)
-        print(varCaseStudy[key])
+        print(varCaseStudy[key]) # print Valus of the last key in Dict
         print('HDNs_DMDU: Building a database for each csv file (tmp, pcp, hmd, slr, wnd)!')
         
         '''Step 6: building a database for each precipitation and temperature file in Climate folder and saving them in a list'''
@@ -376,7 +376,7 @@ class solver_CCD(read_inputdata):
 
 
         dfvarCol  = collections.OrderedDict()
-        for i in range(len(_VarCaseStudy)):
+        for i in range(len(self.args)): 
             #d["{0}".format( 'x' + str(i+1) + (str(self.args[i]) + 'Thershold'))] = []
             dfvarCol['df' + "{0}".format(str(self.args[i]) + 'Col')] = [None for _ in range(len(varCaseStudy[key]))]
 
@@ -392,8 +392,10 @@ class solver_CCD(read_inputdata):
         print('end 111')
 
         '''6.3 defining the length of simulations and scenarios'''
+        # fo Generalization "/ 2" should be corrected because it is for Tmax Tmin
         scenariosLength = int(len(dfvarCol[dfvarColKey[0]][0]) / 2)
-        #simulationLength = len(dftmp[0][dftmpCol[0]]) - 1
+        #simulationLength = len(dfvar[0][dfvarCol[0]]) - 1
+        simulationLength = len(dfvar[dfvarkeys[0]][0]) - 1 # has all columns and returnd the number of rows
             
         '''Reading the beginning and end of the simulation''' 
 
@@ -402,7 +404,7 @@ class solver_CCD(read_inputdata):
             dateList.append(single_date.strftime("%m/%d/%Y"))
         
         start_year = _temp_helper.start_date.year
-        end_year= _temp_helper.end_date.year + 1
+        end_year = _temp_helper.end_date.year + 1
         print(start_year)
         print(end_year)
         #print(dateList)
@@ -411,14 +413,164 @@ class solver_CCD(read_inputdata):
         for n in range (start_year, end_year + 1, 1):
             seasonList.append(str(n))
         
-
         print(scenariosLength)
-        #print(simulationLength)
+        print(simulationLength)
+
+        print('HDNs_DMDU: Part 1 Running the model, looking for extreme events and printing the output!')
+        '''################################ PART1 ################################'''
+        '''*******************************Running the model for each climate station:***********************************'''
+
+        univariant_extremes = collections.OrderedDict()
+        todayVar = collections.OrderedDict()
+        is_extreme_Compound = collections.OrderedDict()
+        total = collections.OrderedDict()
+        for i in range(len(_VarCaseStudy)):
+            #univariant_extremes['is_extreme_' + "{0}".format(str(self.args[i]))] = [0 for _ in range(simulationLength)] # use k for + "_stns" + str(k)
+            todayVar['today' + "{0}".format(str(self.args[i]))] = 0 
+        
+        for k in range(len(_VarCaseStudy)):
+            for i in range(len(self.args)):
+                univariant_extremes['is_extreme_' + "{0}".format(str(self.args[i] + "_stns_" + str(k)))] = [0 for _ in range(simulationLength)] # use k for + "_stns" + str(k)
+        
+        for k in range(len(_VarCaseStudy)):
+            is_extreme_Compound['is_extreme_Compound_' + "{0}".format(str(k))] = [0 for _ in range(simulationLength)]
+            total['total_' + "{0}".format(str(k))] = np.zeros([simulationLength, (len(self.args) + 1)])
+
+        todayVar_keys = list(todayVar.keys())
+        univariant_extremes_keys = list(univariant_extremes.keys())
+        is_extreme_Compound_keys = list(is_extreme_Compound.keys())
+        total_keys = list(total.keys())
+
+        print("XXXXXXXX")
+        print(univariant_extremes_keys)
+        print(todayVar_keys)
+        print("XXXXXXXX")
+        caseStudyStns_keys = list(caseStudyStns[0].keys()) # why = 0? no matter [0] or [1] because the variables are same for N stations  
+        print(caseStudyStns_keys[4])
+        print(caseStudyStns_keys[6])
+        print("XXXXXXXX")
+
+
+        '''RCP and Climate Model Controler'''
+        rcp_Model = RCP_Model(self.xRCP, self.xClimateModel)
+        RCP, intRCP = rcp_Model.rcpGenerator()
+        climateModel = rcp_Model.climateModel()
+
+        print(RCP)
+        print(intRCP)
+        print(climateModel)
+        
+        '''***********************************For the FIRST DAY of Simulation ONLY:*************************************'''
+        '''Running the model for each Stations:'''
+        for k in range(len(_VarCaseStudy)):       
+            '''Running the model for each climate scenario:'''
+            for j in range(climateModel, climateModel + 1, 1):
+                '''Running the model for each Variable:'''
+                for i in range(len(self.args)):#i for variable Tmax or Tmin k for stations (0t.csv and 1t.csv), j for climate model meaning the clomun of csv file
+                    todayVar[todayVar_keys[i]] = round(dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[1], 2) \
+                    if (dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[1] != -99) else 0
+
+                # '''Tmax Tmin all variables, check the condition of the first day:'''
+                    if ( todayVar[todayVar_keys[i]]) >= float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]):#day_Var[i][j+1]
+                        print(todayVar[todayVar_keys[i]])
+                        print(float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]))
+                        univariant_extremes[univariant_extremes_keys[2*k+i]][0] = 1
+                        print(univariant_extremes[univariant_extremes_keys[2*k+i]][0])
+                        print("DONE DONE") #is_extreme_Tmax[0] = 1
+
+                    else: univariant_extremes[univariant_extremes_keys[2*k+i]][0] = 0
+
+        for k in range(len(varCaseStudy[key])):
+            for i in range(len(self.args)-1):
+                if (univariant_extremes[univariant_extremes_keys[k*(i+1)]][0] == 1) and ( univariant_extremes[univariant_extremes_keys[k*(i+1)+1]][0] == 1):
+                    is_extreme_Compound[is_extreme_Compound_keys[k]][0] = 1099
+                else: is_extreme_Compound[is_extreme_Compound_keys[k]][0] = -19
+                '''storing three values in a list for the first day ready fo printing in the csv file:'''
+            total[total_keys[k]][0,0] = round(univariant_extremes[univariant_extremes_keys[2*k]][0], 2)
+            total[total_keys[k]][0,1] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][0], 2)
+            total[total_keys[k]][0,2] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][0],2)
+
+        print('hello')
+
+
+        '''***********************************For the SECOND DAY to the END DAY of Simulation:***********************************'''
+        for t in range(2, simulationLength + 1, 1):
+            for k in range(len(_VarCaseStudy)):       
+                '''Running the model for each climate scenario:'''
+                for j in range(climateModel, climateModel + 1, 1):
+                    '''Running the model for each Variable:'''
+                    for i in range(len(self.args)):#i for variable Tmax or Tmin k for stations (0t.csv and 1t.csv), j for climate model meaning the clomun of csv file
+                        todayVar[todayVar_keys[i]] = round(dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[t], 2) \
+                        if (dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[t] != -99) else 0
+
+                    # '''Tmax Tmin all variables, check the condition of the first day:'''
+                        if ( todayVar[todayVar_keys[i]]) >= float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]):#day_Var[i][j+1]
+                            print(todayVar[todayVar_keys[i]])
+                            print(float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]))
+                            univariant_extremes[univariant_extremes_keys[2*k+i]][t-1] = 1
+                            print(univariant_extremes[univariant_extremes_keys[2*k+i]][t-1])
+                            print("DONE DONE") #is_extreme_Tmax[0] = 1
+
+                        else: univariant_extremes[univariant_extremes_keys[2*k+i]][t-1] = 0
+
+            for k in range(len(varCaseStudy[key])):
+                for i in range(len(self.args)-1):
+                    if (univariant_extremes[univariant_extremes_keys[k*(i+1)]][t-1] == 1) and ( univariant_extremes[univariant_extremes_keys[k*(i+1)+1]][t-1] == 1):
+                        is_extreme_Compound[is_extreme_Compound_keys[k]][t-1] = 1099
+                    else: is_extreme_Compound[is_extreme_Compound_keys[k]][t-1] = -19
+                    '''storing three values in a list for the first day ready fo printing in the csv file:'''
+                total[total_keys[k]][t-1,0] = round(univariant_extremes[univariant_extremes_keys[2*k]][t-1], 2)
+                total[total_keys[k]][t-1,1] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][t-1], 2)
+                total[total_keys[k]][t-1,2] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][t-1],2)        
+
+
+
+        '''Saving the Outputs of total list in a CSV file in a specific path'''
+        ## 1st row for the column names:
+        
+        #columnsDF = []
+        columnsDF = collections.OrderedDict()
+        #columnsDF_aerSnowCheck = []
+
+        
+        nameHeader = dfpcpCol[climateModel]   # col 68 which should be read and printed here 
+        
+
+        columnsDF.append('is_Tmax_exEve' + nameHeader)
+        columnsDF.append('is_Tmin_exEve' + nameHeader)
+        columnsDF.append('is_Tmax_Tmin_exEve' + nameHeader)
+        #columnsDF_aerSnowCheck.append('ArtSnowPossibility_' + nameHeader)
+        #columnsDF_aerSnowCheck.append('Revenue_' + nameHeader)
+        #columnsDF_aerSnowCheck.append('Cost_' + nameHeader)
+        #columnsDF_aerSnowCheck.append('Money_' + nameHeader)
+
+        '''******Extreme analyses daily******'''
+        columnsDF0 = ['DATE']
+        dfnew0 = pd.DataFrame(dateList, columns = columnsDF0)
+        dfnew1 = pd.DataFrame(total, columns = columnsDF)
+        df1 = pd.concat([dfnew0, dfnew1], axis=1, sort=False)
+
+
+        if os.path.isdir(os.path.join(self.root, 'Outputs_py')):
+            pass
+        else: os.mkdir(os.path.join(self.root, 'Outputs_py'))
+
+
+        '''Make CSvs for daily extreme Outputs'''
+        outfolder =os.path.join(self.root, 'Outputs_py') 
+        outfileName = 'Total_daily_' + caseStudyStns[k]['fileName'] + '.csv' ##
+        outputFile = os.path.join(outfolder, outfileName )
+        df1.to_csv(outputFile, index = False)
+
+
+
 
 
 
 ###### START Of the API ######
-CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 22, 0.87, 'Tmax','Tmin')
+#CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 22, 0.87, 'Tmax','Tmin')
+CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 1, 0.87, 'Tmax','Tmin')
+
 
 src = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten'
 dst = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten'
