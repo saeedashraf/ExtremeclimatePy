@@ -592,15 +592,15 @@ class solver_CCD(read_inputdata):
 
 
 ###### START Of the API ######
-#CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 22, 0.87, 'Tmax','Tmin')
+# CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 22, 0.87, 'Tmax','Tmin')
 
-src = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2'
-dst = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2'
-start_date = date(1981, 1, 1)
-end_date = date(2099, 12, 31)
+# src = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2'
+# dst = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2'
+# start_date = date(1981, 1, 1)
+# end_date = date(2099, 12, 31)
 
-CCD = solver_CCD(src, 3, 1, 0.87, 'Tmax','Tmin')
-y = CCD.ccd_calc()
+# CCD = solver_CCD(src, 3, 1, 0.87, 'Tmax','Tmin')
+# y = CCD.ccd_calc()
 
 
 #print("********************************EEEEENNNNNDDDDD********************************")
