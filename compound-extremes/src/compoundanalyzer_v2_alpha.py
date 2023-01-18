@@ -1,9 +1,3 @@
-
-# 1.take csv and txt files 
-# 2. read the variables and creat dictionary
-# 3- read text files, csvs, etc
-
-
 import os
 import os.path
 from datetime import datetime, date, timedelta
@@ -210,7 +204,7 @@ class _helper:
         self.start_date = start_date
         self.end_date = end_date
         self.symlinks = symlinks
-        self.ignore=ignore
+        self.ignore = ignore
 
 
     def copytree(self):
@@ -399,7 +393,9 @@ class solver_CCD(read_inputdata):
             
         '''Reading the beginning and end of the simulation''' 
 
-        
+        dateList = []
+        _temp_helper = _helper(src, dst, start_date, end_date)
+
         for single_date in _temp_helper.daterange():
             dateList.append(single_date.strftime("%m/%d/%Y"))
         
@@ -420,10 +416,12 @@ class solver_CCD(read_inputdata):
         '''################################ PART1 ################################'''
         '''*******************************Running the model for each climate station:***********************************'''
 
-        univariant_extremes = collections.OrderedDict()
         todayVar = collections.OrderedDict()
+        univariant_extremes = collections.OrderedDict()
         is_extreme_Compound = collections.OrderedDict()
+        len_extreme_Compound = collections.OrderedDict()
         total = collections.OrderedDict()
+
         for i in range(len(_VarCaseStudy)):
             #univariant_extremes['is_extreme_' + "{0}".format(str(self.args[i]))] = [0 for _ in range(simulationLength)] # use k for + "_stns" + str(k)
             todayVar['today' + "{0}".format(str(self.args[i]))] = 0 
@@ -433,14 +431,18 @@ class solver_CCD(read_inputdata):
                 univariant_extremes['is_extreme_' + "{0}".format(str(self.args[i] + "_stns_" + str(k)))] = [0 for _ in range(simulationLength)] # use k for + "_stns" + str(k)
         
         for k in range(len(_VarCaseStudy)):
-            is_extreme_Compound['is_extreme_Compound_' + "{0}".format(str(k))] = [0 for _ in range(simulationLength)]
-            total['total_' + "{0}".format(str(k))] = np.zeros([simulationLength, (len(self.args) + 1)])
+            is_extreme_Compound['is_extreme_Compound_stn' + "{0}".format(str(k))] = [0 for _ in range(simulationLength)]
+            len_extreme_Compound['len_extreme_Compound_stn' + "{0}".format(str(k))] = [0 for _ in range(simulationLength)]
+            total['total_' + "{0}".format(str(k))] = np.zeros([simulationLength, (2*len(self.args) + 2)])
+            
 
         todayVar_keys = list(todayVar.keys())
         univariant_extremes_keys = list(univariant_extremes.keys())
         is_extreme_Compound_keys = list(is_extreme_Compound.keys())
+        len_extreme_Compound_keys = list(len_extreme_Compound.keys())
         total_keys = list(total.keys())
 
+        
         print("XXXXXXXX")
         print(univariant_extremes_keys)
         print(todayVar_keys)
@@ -470,25 +472,31 @@ class solver_CCD(read_inputdata):
                     todayVar[todayVar_keys[i]] = round(dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[1], 2) \
                     if (dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[1] != -99) else 0
 
+                    total[total_keys[k]][0,i] = todayVar[todayVar_keys[i]]
+
                 # '''Tmax Tmin all variables, check the condition of the first day:'''
                     if ( todayVar[todayVar_keys[i]]) >= float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]):#day_Var[i][j+1]
-                        print(todayVar[todayVar_keys[i]])
-                        print(float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]))
+                        #print(todayVar[todayVar_keys[i]])
+                        #print(float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]))
                         univariant_extremes[univariant_extremes_keys[2*k+i]][0] = 1
-                        print(univariant_extremes[univariant_extremes_keys[2*k+i]][0])
-                        print("DONE DONE") #is_extreme_Tmax[0] = 1
+                        #print(univariant_extremes[univariant_extremes_keys[2*k+i]][0])
+                        #print("DONE DONE") #is_extreme_Tmax[0] = 1
 
                     else: univariant_extremes[univariant_extremes_keys[2*k+i]][0] = 0
 
         for k in range(len(varCaseStudy[key])):
-            for i in range(len(self.args)-1):
+            for i in range(len(self.args)-1): ### should be range(1) for generalization ?
                 if (univariant_extremes[univariant_extremes_keys[k*(i+1)]][0] == 1) and ( univariant_extremes[univariant_extremes_keys[k*(i+1)+1]][0] == 1):
-                    is_extreme_Compound[is_extreme_Compound_keys[k]][0] = 1099
-                else: is_extreme_Compound[is_extreme_Compound_keys[k]][0] = -19
-                '''storing three values in a list for the first day ready fo printing in the csv file:'''
-            total[total_keys[k]][0,0] = round(univariant_extremes[univariant_extremes_keys[2*k]][0], 2)
-            total[total_keys[k]][0,1] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][0], 2)
-            total[total_keys[k]][0,2] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][0],2)
+                    is_extreme_Compound[is_extreme_Compound_keys[k]][0] = 1
+                else: is_extreme_Compound[is_extreme_Compound_keys[k]][0] = 0
+
+            len_extreme_Compound[len_extreme_Compound_keys[k]][0] = 1 if (is_extreme_Compound[is_extreme_Compound_keys[k]][0] == 1) else 0
+
+            '''storing  values in a list for the first day ready fo printing in the csv file:'''
+            total[total_keys[k]][0,(len(self.args) + 0)] = round(univariant_extremes[univariant_extremes_keys[2*k]][0], 2)
+            total[total_keys[k]][0,(len(self.args) + 1)] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][0], 2)
+            total[total_keys[k]][0,(len(self.args) + 2)] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][0],2)
+            total[total_keys[k]][0,(len(self.args) + 3)] = round(len_extreme_Compound[len_extreme_Compound_keys[k]][0],2)
 
         print('hello')
 
@@ -503,81 +511,100 @@ class solver_CCD(read_inputdata):
                         todayVar[todayVar_keys[i]] = round(dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[t], 2) \
                         if (dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[t] != -99) else 0
 
+                        total[total_keys[k]][t-1,i] = todayVar[todayVar_keys[i]]
+
                     # '''Tmax Tmin all variables, check the condition of the first day:'''
                         if ( todayVar[todayVar_keys[i]]) >= float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]):#day_Var[i][j+1]
-                            print(todayVar[todayVar_keys[i]])
-                            print(float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]))
+                            #print(todayVar[todayVar_keys[i]])
+                            #print(float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]))
                             univariant_extremes[univariant_extremes_keys[2*k+i]][t-1] = 1
-                            print(univariant_extremes[univariant_extremes_keys[2*k+i]][t-1])
-                            print("DONE DONE") #is_extreme_Tmax[0] = 1
+                            #print(univariant_extremes[univariant_extremes_keys[2*k+i]][t-1])
+                            #print("DONE DONE") #is_extreme_Tmax[0] = 1
 
                         else: univariant_extremes[univariant_extremes_keys[2*k+i]][t-1] = 0
 
             for k in range(len(varCaseStudy[key])):
                 for i in range(len(self.args)-1):
                     if (univariant_extremes[univariant_extremes_keys[k*(i+1)]][t-1] == 1) and ( univariant_extremes[univariant_extremes_keys[k*(i+1)+1]][t-1] == 1):
-                        is_extreme_Compound[is_extreme_Compound_keys[k]][t-1] = 1099
-                    else: is_extreme_Compound[is_extreme_Compound_keys[k]][t-1] = -19
-                    '''storing three values in a list for the first day ready fo printing in the csv file:'''
-                total[total_keys[k]][t-1,0] = round(univariant_extremes[univariant_extremes_keys[2*k]][t-1], 2)
-                total[total_keys[k]][t-1,1] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][t-1], 2)
-                total[total_keys[k]][t-1,2] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][t-1],2)        
+                        is_extreme_Compound[is_extreme_Compound_keys[k]][t-1] = 1
+                    else: is_extreme_Compound[is_extreme_Compound_keys[k]][t-1] = 0
 
+                len_extreme_Compound[len_extreme_Compound_keys[k]][t-1] = (len_extreme_Compound[len_extreme_Compound_keys[k]][t-2] + is_extreme_Compound[is_extreme_Compound_keys[k]][t-1]) \
+                if (is_extreme_Compound[is_extreme_Compound_keys[k]][t-1] == 1) else 0
+                
+                '''storing values in a list for the second day to the end day ready fo printing in the csv file:'''
+                total[total_keys[k]][t-1,(len(self.args) + 0)] = round(univariant_extremes[univariant_extremes_keys[2*k]][t-1], 2)
+                total[total_keys[k]][t-1,(len(self.args) + 1)] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][t-1], 2)
+                total[total_keys[k]][t-1,(len(self.args) + 2)] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][t-1],2)
+                total[total_keys[k]][t-1,(len(self.args) + 3)] = round(len_extreme_Compound[len_extreme_Compound_keys[k]][t-1],2)     
 
 
         '''Saving the Outputs of total list in a CSV file in a specific path'''
-        ## 1st row for the column names:
         
-        #columnsDF = []
-        columnsDF = collections.OrderedDict()
-        #columnsDF_aerSnowCheck = []
+        for k in range(len(_VarCaseStudy)):
 
+            ## 1st row for the column names:
+            columnsDF0 = ['DATE']
+            columnsDF = []
+            #columnsDF = collections.OrderedDict()
+            #columnsDF_aerSnowCheck = []
+            ### nameHeader = dfpcpCol[climateModel]   # col 68 which should be read and printed here 
+            
+            nameHeader = dfvarCol[dfvarColKey[0]][k][2*j] #dfvarCol[dfvarColKey[0]][0][134] 
+
+            for i in range(len(self.args)):
+                columnsDF.append('today_' + "{0}".format(str(self.args[i])) + '_' + nameHeader)
+
+            for i in range(len(self.args)):
+                columnsDF.append('is_' + "{0}".format(str(self.args[i])) + '_exEv_' + nameHeader) 
+            #columnsDF.append('is_Tmax_exEve' + nameHeader)
+            #columnsDF.append('is_Tmin_exEve' + nameHeader)
+            columnsDF.append('Are_ALL_VAR_exEve' + nameHeader)
+            columnsDF.append('Length_ALL_VAR_exEve' + nameHeader)
+
+            #columnsDF_aerSnowCheck.append('ArtSnowPossibility_' + nameHeader)
+            #columnsDF_aerSnowCheck.append('Revenue_' + nameHeader)
+            #columnsDF_aerSnowCheck.append('Cost_' + nameHeader)
+            #columnsDF_aerSnowCheck.append('Money_' + nameHeader)
+
+            '''******Extreme analyses daily******'''
+            dfnew0 = pd.DataFrame(dateList, columns = columnsDF0)
+            dfnew1 = pd.DataFrame(total[total_keys[k]], columns = columnsDF)
+            df1 = pd.concat([dfnew0, dfnew1], axis=1, sort=False)
+
+
+            if os.path.isdir(os.path.join(self.root, 'Outputs_py')):
+                pass
+            else: os.mkdir(os.path.join(self.root, 'Outputs_py'))
+
+
+            '''Make CSvs for daily extreme Outputs'''
+            outfolder =os.path.join(self.root, 'Outputs_py') 
+            outfileName = 'Total_daily_' + caseStudyStns[k]['fileName'] + '.csv' ##
+            outputFile = os.path.join(outfolder, outfileName )
+            df1.to_csv(outputFile, index = False)
         
-        nameHeader = dfpcpCol[climateModel]   # col 68 which should be read and printed here 
-        
-
-        columnsDF.append('is_Tmax_exEve' + nameHeader)
-        columnsDF.append('is_Tmin_exEve' + nameHeader)
-        columnsDF.append('is_Tmax_Tmin_exEve' + nameHeader)
-        #columnsDF_aerSnowCheck.append('ArtSnowPossibility_' + nameHeader)
-        #columnsDF_aerSnowCheck.append('Revenue_' + nameHeader)
-        #columnsDF_aerSnowCheck.append('Cost_' + nameHeader)
-        #columnsDF_aerSnowCheck.append('Money_' + nameHeader)
-
-        '''******Extreme analyses daily******'''
-        columnsDF0 = ['DATE']
-        dfnew0 = pd.DataFrame(dateList, columns = columnsDF0)
-        dfnew1 = pd.DataFrame(total, columns = columnsDF)
-        df1 = pd.concat([dfnew0, dfnew1], axis=1, sort=False)
+        print('done part 1')
 
 
-        if os.path.isdir(os.path.join(self.root, 'Outputs_py')):
-            pass
-        else: os.mkdir(os.path.join(self.root, 'Outputs_py'))
-
-
-        '''Make CSvs for daily extreme Outputs'''
-        outfolder =os.path.join(self.root, 'Outputs_py') 
-        outfileName = 'Total_daily_' + caseStudyStns[k]['fileName'] + '.csv' ##
-        outputFile = os.path.join(outfolder, outfileName )
-        df1.to_csv(outputFile, index = False)
-
-
+#### There is some problen for the lenghth and is compund in the second station
 
 
 
 
 ###### START Of the API ######
 #CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 22, 0.87, 'Tmax','Tmin')
-CCD = solver_CCD(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 3, 1, 0.87, 'Tmax','Tmin')
 
-
-src = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten'
-dst = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten'
+src = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2'
+dst = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2'
 start_date = date(1981, 1, 1)
-end_date = date(2020, 12, 31)
-dateList = []
-_temp_helper = _helper(src, dst, start_date, end_date)
+end_date = date(2099, 12, 31)
+
+CCD = solver_CCD(src, 3, 1, 0.87, 'Tmax','Tmin')
+
+
+
+#dateList = []
 
 y = CCD.ccd_calc()
 
