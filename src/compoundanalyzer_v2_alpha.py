@@ -158,7 +158,6 @@ class read_inputdata:
             for j, element in enumerate(day_Var[i]):
                 for k in range (len(nameStn)):
                     if element == stnDicts[k]['fileName']:
-                        print('helllloooo')
                         print(element)
                         print(day_Var[i][j+1])
                         stnDicts[k][_temp_DayVar[i]] = day_Var[i][j+1]
@@ -498,7 +497,7 @@ class solver_CCD(read_inputdata):
             total[total_keys[k]][0,(len(self.args) + 2)] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][0],2)
             total[total_keys[k]][0,(len(self.args) + 3)] = round(len_extreme_Compound[len_extreme_Compound_keys[k]][0],2)
 
-        print('hello')
+        print('Done first day')
 
 
         '''***********************************For the SECOND DAY to the END DAY of Simulation:***********************************'''
@@ -537,6 +536,8 @@ class solver_CCD(read_inputdata):
                 total[total_keys[k]][t-1,(len(self.args) + 1)] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][t-1], 2)
                 total[total_keys[k]][t-1,(len(self.args) + 2)] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][t-1],2)
                 total[total_keys[k]][t-1,(len(self.args) + 3)] = round(len_extreme_Compound[len_extreme_Compound_keys[k]][t-1],2)     
+        
+        print('Done all days')
 
 
         '''Saving the Outputs of total list in a CSV file in a specific path'''
@@ -584,12 +585,10 @@ class solver_CCD(read_inputdata):
             outputFile = os.path.join(outfolder, outfileName )
             df1.to_csv(outputFile, index = False)
         
-        print('done part 1')
+        print('done.... end of calculations')
 
 
 #### There is some problen for the lenghth and is compund in the second station
-
-
 
 
 ###### START Of the API ######
@@ -601,15 +600,8 @@ start_date = date(1981, 1, 1)
 end_date = date(2099, 12, 31)
 
 CCD = solver_CCD(src, 3, 1, 0.87, 'Tmax','Tmin')
-
-
-
-#dateList = []
-
 y = CCD.ccd_calc()
 
 
-
-
-print("********************************EEEEENNNNNDDDDD********************************")
+#print("********************************EEEEENNNNNDDDDD********************************")
 
