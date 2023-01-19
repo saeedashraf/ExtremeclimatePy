@@ -9,7 +9,6 @@ import time
 from matplotlib import pyplot as plt
 import collections
 
-
 class read_inputdata:
     
     def __init__(self, root, *args, **kwargs):
@@ -29,6 +28,7 @@ class read_inputdata:
         '''Step 1''' 
         rootFolder = self.root
         inputFolder = os.path.join(rootFolder,'input')
+        
         varFolder = []
         for i in range(len(self.args)):
             #tempName = str(self.args[i]) + 'Folder'
@@ -181,6 +181,7 @@ class read_inputdata:
         return stnDicts, inputFolder, varFolder, climate_ref_Folder, \
             climate_Ref_Folder_org, climate_ref_Folder_rand_1, climate_ref_Folder_rand_2
 
+
 #a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin')
 
 #b1 = a._initiate_dict()
@@ -188,6 +189,7 @@ class read_inputdata:
 
 #c = a._initialize_input_dict()
 #print(c)
+
 
 class initilizer:
 
@@ -584,21 +586,23 @@ class solver_CCD(read_inputdata):
         print('done.... end of calculations')
 
 
-###### START Of the API ######
-# import datetime
-# import ExtremeclimatePy as ex
-# from ExtremeclimatePy import compoundanalyzer_v2_alpha
+#### There is some problen for the lenghth and is compund in the second station
 
+
+###### START Of the API ######
 # root = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2' 
-# # start_date = datetime.date(1981, 1, 1)
-# # end_date = datetime.date(2099, 12, 31)
+# start_date = date(1981, 1, 1)
+# end_date = date(2099, 12, 31)
 # xRCP = 3
 # xClimateModel = 1
 # Xfactor1 = 0.87
 
-# CCD = compoundanalyzer_v2_alpha.solver_CCD(root, start_date, end_date, xRCP, xClimateModel, Xfactor1, 'Tmax','Tmin')
-# CCD_Tmax_Tmin = CCD.ccd_calc()
+# CCD = solver_CCD(root, start_date, end_date, xRCP, xClimateModel, Xfactor1, 'Tmax','Tmin')
 
 # # src = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2'
 # # dst = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v2'
+# y = CCD.ccd_calc()
+
+
+# print("********************************EEEEENNNNNDDDDD********************************")
 
