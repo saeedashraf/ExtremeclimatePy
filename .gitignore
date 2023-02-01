@@ -1,4 +1,4 @@
-./compound-extremes/compoundanalyzer_v2_alpha.py
-./compound-extremes/compoundanalyzer_v3_alpha.py
+./ExtremeclimatePy/compoundanalyzer_v2_alpha.py
+./ExtremeclimatePy/compoundanalyzer_v3_alpha.py
 ./setup.py
 ./build
