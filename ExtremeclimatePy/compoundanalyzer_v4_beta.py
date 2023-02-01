@@ -306,18 +306,6 @@ class solver_CCD(read_inputdata):
             dst = os.getcwd()
             #copytree(src, dst)
             print('Random Climate realization version n is being used')
-        # else:
-        #     os.chdir(climateFolder2)
-        #     src = os.getcwd()
-        #     os.chdir(climateFolder)
-        #     dst = os.getcwd()
-        #     #copytree(src, dst)
-        #     print('Random Climate realization version 2 is being used')
-
-        
-        #os.chdir(climateFolder)
-        #fnames = os.listdir()
-        #randomness_pcp_tmp(fnames, Xfactor1)
 
         print('HDNs_DMDU: Matching the station names values with CSV files!')   
         
@@ -348,9 +336,6 @@ class solver_CCD(read_inputdata):
             for i in range(len(caseStudyStns)):
                 for j in range(len(self.args)):
 
-                #for j in range(len(caseStudyStns)):
-                    #d[i].append(os.path.join(climateFolder, caseStudyStns[j]['fileName'] + 't.csv'))
-                #for key, value in varCaseStudy.items():
                     varCaseStudy[varCaseStudykeys[i*len(self.args)+j]].append(os.path.join(climateFolder_org, caseStudyStns[i]['fileName'] +  str(self.args[j]).lower() + '.csv'))
 
         else:
@@ -362,11 +347,6 @@ class solver_CCD(read_inputdata):
                 #for key, value in varCaseStudy.items():
                     varCaseStudy[varCaseStudykeys[i*len(self.args)+j]].append(os.path.join(climateFolder_rands[self.deepuncertainty_rand-1], caseStudyStns[i]['fileName'] +  str(self.args[j]).lower() + '.csv'))
 
-        # if (xClimateRandomness == 3):
-        #     for i in range(len(_VarCaseStudy)):
-        #         for key, value in varCaseStudy.items():
-        #             varCaseStudy[key].append(os.path.join(climateFolder2, caseStudyStns[i]['fileName'] + 't.csv'))
-        #             #dfvar['df' + "{0}".format(str(self.args[i]))] = [None for _ in range(len(d[key]))]        
 
         print(varCaseStudy)
         #print(varCaseStudy[key]) # print Valus of the last key in Dict
@@ -397,10 +377,6 @@ class solver_CCD(read_inputdata):
         
         #dfvarCol = ['df' + "{0}".format(str(self.args[i]) + 'Col') for i in range(len(self.args))]
         '''6.2 where we read the CSV files'''
-        # for i in range(len(dfvar)): #comennneted 20230128
-        #     for j in range(len(dfvar[dfvarkeys[i]])):
-        #         dfvar[dfvarkeys[i]][j] = pd.read_csv(varCaseStudy[varCaseStudykeys[i]][j])
-        #         dfvarCol[dfvarColKey[i]][j] = dfvar[dfvarkeys[i]][j].columns # from two stations we only take the first one's columns assuming it's same for both
         
         for i in range(len(caseStudyStns)):
             for j in range(len(self.args)):
@@ -503,17 +479,13 @@ class solver_CCD(read_inputdata):
                     todayVar[todayVar_keys[i]] = round(dfvar[dfvarkeys[k*len(self.args)+i]][0][dfvarCol[dfvarColKey[k*len(self.args)+i]][0][j]].iloc[0], 2) \
                     if (dfvar[dfvarkeys[k*len(self.args)+i]][0][dfvarCol[dfvarColKey[k*len(self.args)+i]][0][j]].iloc[0] != -99) else 0
 
-                    ## dfvar[dfvarkeys[0]][0][dfvarCol[dfvarColKey[0]][0][67]].iloc[1]
-
                     total[total_keys[k]][0,i] = todayVar[todayVar_keys[i]]
 
                 # '''Tmax Tmin all variables, check the condition of the first day:'''
                     if ( todayVar[todayVar_keys[i]]) >= float(caseStudyStns[k][caseStudyStns_keys[len(self.args) + 1 + 2*i]]):# 1 is for file name in ccaseStudyStansday_Var[i][j+1]
-                        #print(todayVar[todayVar_keys[i]])
-                        #print(float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]))
+
                         univariant_extremes[univariant_extremes_keys[k*len(self.args)+i]][0] = 1
-                        #print(univariant_extremes[univariant_extremes_keys[2*k+i]][0])
-                        #print("DONE DONE") #is_extreme_Tmax[0] = 1
+
 
                     else: univariant_extremes[univariant_extremes_keys[k*len(self.args)+i]][0] = 0
 
@@ -531,9 +503,7 @@ class solver_CCD(read_inputdata):
             for i in range(len(self.args)):
                 total[total_keys[k]][0,(len(self.args) + i)] = round(univariant_extremes[univariant_extremes_keys[k*len(self.args)+i]][0], 2)
 
-            #total[total_keys[k]][0,(len(self.args) + 0)] = round(univariant_extremes[univariant_extremes_keys[2*k]][0], 2)
-            #total[total_keys[k]][0,(len(self.args) + 1)] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][0], 2)
-
+            
             total[total_keys[k]][0,(2*len(self.args) + 0)] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][0],2)
             total[total_keys[k]][0,(2*len(self.args) + 1)] = round(len_extreme_Compound[len_extreme_Compound_keys[k]][0],2)
 
@@ -547,8 +517,6 @@ class solver_CCD(read_inputdata):
                 for j in range(climateModel, climateModel + 1, 1):
                     '''Running the model for each Variable:'''
                     for i in range(len(self.args)):#i for variable Tmax or Tmin k for stations (0t.csv and 1t.csv), j for climate model meaning the clomun of csv file
-                        #todayVar[todayVar_keys[i]] = round(dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[t], 2) \
-                        #if (dfvar[dfvarkeys[i]][k][dfvarCol[dfvarColKey[i]][k][2*j+i]].iloc[t] != -99) else 0
 
                         todayVar[todayVar_keys[i]] = round(dfvar[dfvarkeys[k*len(self.args)+i]][0][dfvarCol[dfvarColKey[k*len(self.args)+i]][0][j]].iloc[t-1], 2) \
                         if (dfvar[dfvarkeys[k*len(self.args)+i]][0][dfvarCol[dfvarColKey[k*len(self.args)+i]][0][j]].iloc[t-1] != -99) else 0
@@ -558,12 +526,10 @@ class solver_CCD(read_inputdata):
 
 
                     # '''Tmax Tmin all variables, check the condition of the first day:'''
-                        if ( todayVar[todayVar_keys[i]]) >= float(caseStudyStns[k][caseStudyStns_keys[len(self.args) + 1 + 2*i]]):#day_Var[i][j+1]
-                            #print(todayVar[todayVar_keys[i]])
-                            #print(float(caseStudyStns[k][caseStudyStns_keys[4+2*i]]))
+                        if ( todayVar[todayVar_keys[i]]) >= float(caseStudyStns[k][caseStudyStns_keys[len(self.args) + 1 + 2*i]]):
+
                             univariant_extremes[univariant_extremes_keys[k*len(self.args)+i]][t-1] = 1
-                            #print(univariant_extremes[univariant_extremes_keys[2*k+i]][t-1])
-                            #print("DONE DONE") #is_extreme_Tmax[0] = 1
+
 
                         else: univariant_extremes[univariant_extremes_keys[k*len(self.args)+i]][t-1] = 0
 
@@ -582,8 +548,6 @@ class solver_CCD(read_inputdata):
                 for i in range(len(self.args)):
                     total[total_keys[k]][t-1,(len(self.args) + i)] = round(univariant_extremes[univariant_extremes_keys[k*len(self.args)+i]][t-1], 2)
 
-            #total[total_keys[k]][0,(len(self.args) + 0)] = round(univariant_extremes[univariant_extremes_keys[2*k]][0], 2)
-            #total[total_keys[k]][0,(len(self.args) + 1)] = round(univariant_extremes[univariant_extremes_keys[2*k+1]][0], 2)
 
                 total[total_keys[k]][t-1,(2*len(self.args) + 0)] = round(is_extreme_Compound[is_extreme_Compound_keys[k]][t-1],2)
                 total[total_keys[k]][t-1,(2*len(self.args) + 1)] = round(len_extreme_Compound[len_extreme_Compound_keys[k]][t-1],2)
@@ -598,9 +562,7 @@ class solver_CCD(read_inputdata):
             ## 1st row for the column names:
             columnsDF0 = ['DATE']
             columnsDF = []
-            #columnsDF = collections.OrderedDict()
-            #columnsDF_aerSnowCheck = []
-            ### nameHeader = dfpcpCol[climateModel]   # col 68 which should be read and printed here 
+
             
             nameHeader =  dfvarCol[dfvarColKey[k*len(self.args)]][0][climateModel-1] #dfvarCol[dfvarColKey[0]][0][134] 
 
@@ -609,15 +571,10 @@ class solver_CCD(read_inputdata):
 
             for i in range(len(self.args)):
                 columnsDF.append('is_' + "{0}".format(str(self.args[i])) + '_exEv_' + nameHeader) 
-            #columnsDF.append('is_Tmax_exEve' + nameHeader)
-            #columnsDF.append('is_Tmin_exEve' + nameHeader)
+
             columnsDF.append('Are_ALL_VARs_exEve_' + nameHeader)
             columnsDF.append('Length_ALL_VARs_exEve_' + nameHeader)
 
-            #columnsDF_aerSnowCheck.append('ArtSnowPossibility_' + nameHeader)
-            #columnsDF_aerSnowCheck.append('Revenue_' + nameHeader)
-            #columnsDF_aerSnowCheck.append('Cost_' + nameHeader)
-            #columnsDF_aerSnowCheck.append('Money_' + nameHeader)
 
             '''******Extreme analyses daily******'''
             dfnew0 = pd.DataFrame(dateList, columns = columnsDF0)
@@ -640,26 +597,21 @@ class solver_CCD(read_inputdata):
 
 
 ###### START Of the API ######
-# import datetime
-# import ExtremeclimatePy as ex
-# from ExtremeclimatePy import compoundanalyzer_v2_alpha
+#import datetime
+#from ExtremeclimatePy import compoundanalyzer_v4_beta
 
 root = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v4' 
 start_date = date(1981, 1, 1)
 end_date = date(2099, 12, 31)
 xRCP = 3
 xClimateModel = 0.99
-#Xfactor1 = 1.87
 nRCP26 = 12
 nRCP45 = 25
 nRCP85 = 31
 deepuncertainty_rand = 5
 
-#CCD = solver_CCD(root, start_date, end_date, xRCP, xClimateModel, Xfactor1, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Pcp', 'Tmn','Tmx')
 CCD = solver_CCD(root, start_date, end_date, xRCP, xClimateModel, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Pcp', 'Tmn','Tmx')
-
 CCD_Tmax_Tmin = CCD.ccd_calc()
-
 
 print("Goodbye!")
 
