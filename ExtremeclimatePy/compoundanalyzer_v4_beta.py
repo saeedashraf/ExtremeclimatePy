@@ -461,7 +461,7 @@ class solver_CCD(read_inputdata):
 
 
         '''RCP and Climate Model Controler'''
-        rcp_Model = RCP_Model(self.xRCP, self.xClimateModel, nRCP26, nRCP45, nRCP85)
+        rcp_Model = RCP_Model(self.xRCP, self.xClimateModel, self.nRCP26, self.nRCP45, self.nRCP85)
         RCP, intRCP = rcp_Model.rcpGenerator()
         climateModel = rcp_Model.climateModel_()
 
@@ -594,10 +594,10 @@ class solver_CCD(read_inputdata):
             df1.to_csv(outputFile, index = False)
         
         print('Done.... end of calculations')
-print("Goodbye!")
+    print("Goodbye!")
 
 ###### START Of the API ######
-#import datetime
+#from datetime import date
 #from ExtremeclimatePy import compoundanalyzer_v4_beta
 
 # root = r'.\examples\CC_3vars_PCP_TMN_TMX' 
@@ -610,7 +610,7 @@ print("Goodbye!")
 # nRCP85 = 31
 # deepuncertainty_rand = 5
 
-# CCD = solver_CCD(root, start_date, end_date, xRCP, xClimateModel, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Pcp', 'Tmn','Tmx')
-# CCD_Tmax_Tmin = CCD.ccd_calc()
+# CCD = compoundanalyzer_v4_beta.solver_CCD(root, start_date, end_date, xRCP, xClimateModel, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Pcp', 'Tmn','Tmx')
+# CCD_Pcp_Tmn_Tmx = CCD.ccd_calc()
 
 
