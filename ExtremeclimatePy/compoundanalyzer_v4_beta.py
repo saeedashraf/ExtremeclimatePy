@@ -594,24 +594,23 @@ class solver_CCD(read_inputdata):
             df1.to_csv(outputFile, index = False)
         
         print('Done.... end of calculations')
-
+print("Goodbye!")
 
 ###### START Of the API ######
 #import datetime
 #from ExtremeclimatePy import compoundanalyzer_v4_beta
 
-root = r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten_v4' 
-start_date = date(1981, 1, 1)
-end_date = date(2099, 12, 31)
-xRCP = 3
-xClimateModel = 0.99
-nRCP26 = 12
-nRCP45 = 25
-nRCP85 = 31
-deepuncertainty_rand = 5
+# root = r'.\examples\CC_3vars_PCP_TMN_TMX' 
+# start_date = date(1981, 1, 1)
+# end_date = date(2099, 12, 31)
+# xRCP = 3
+# xClimateModel = 0.99
+# nRCP26 = 12
+# nRCP45 = 25
+# nRCP85 = 31
+# deepuncertainty_rand = 5
 
-CCD = solver_CCD(root, start_date, end_date, xRCP, xClimateModel, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Pcp', 'Tmn','Tmx')
-CCD_Tmax_Tmin = CCD.ccd_calc()
+# CCD = solver_CCD(root, start_date, end_date, xRCP, xClimateModel, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Pcp', 'Tmn','Tmx')
+# CCD_Tmax_Tmin = CCD.ccd_calc()
 
-print("Goodbye!")
 
