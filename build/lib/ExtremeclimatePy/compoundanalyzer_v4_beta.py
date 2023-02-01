@@ -44,7 +44,8 @@ class read_inputdata:
         climate_ref_Folder_rand = []
         for i in range(1, self.deepuncertainty_rand + 1):
             climate_ref_Folder_rand.append(os.path.join(inputFolder, 'Climate_ref_randomness_' + str(i)))
-
+        #climate_ref_Folder_rand_1 = os.path.join(inputFolder, 'Climate_ref_randomness_1')
+        #climate_ref_Folder_rand_2 = os.path.join(inputFolder, 'Climate_ref_randomness_2')
 
         '''Step 2: Reading all files' names inside the Tamx, Tmin, and climate folders'''  
         filesA = [ (str(self.args[i]) + 'Files') for i in range (len(self.args))]
@@ -182,10 +183,19 @@ class read_inputdata:
         
         print("***************************************************AAAA********************************************************")
         print(stnDicts)
-
+        #return stnDicts, inputFolder, varFolder, climate_ref_Folder, \
+         #   climate_Ref_Folder_org, climate_ref_Folder_rand_1, climate_ref_Folder_rand_2
 
         return stnDicts, inputFolder, varFolder, climate_ref_Folder, \
             climate_Ref_Folder_org, climate_ref_Folder_rand
+
+#a = read_inputdata(r'C:\Saeid\Prj100\SA_47_CCHDNs_package\data\Zurich_kloten', 'Tmax','Tmin')
+
+#b1 = a._initiate_dict()
+#print(b1)
+
+#c = a._initialize_input_dict()
+#print(c)
 
 class initilizer:
 
@@ -584,7 +594,7 @@ class solver_CCD(read_inputdata):
             df1.to_csv(outputFile, index = False)
         
         print('Done.... end of calculations')
-    #print("Goodbye!")
+    print("Goodbye!")
 
 ###### START Of the API ######
 #from datetime import date
