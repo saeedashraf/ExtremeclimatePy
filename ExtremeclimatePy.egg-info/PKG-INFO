@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: ExtremeclimatePy
+Version: 0.0.1
+Summary: analyzing compound extreme events
+Home-page: https://github.com/saeedashraf/ExtremeclimatePy
+Author: Saeid A. Vaghefi
+Author-email: saeid.vaghefi@geo.uzh.ch
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE.MD
+
+To analyze the simultaneous occurrence of extreme events which could lead to tipping points in socio-economic systems, we propose "compound-extremes", an open-source Python framework. "compound-extremes" allows the user to assess four types of compound events, namely (a) preconditioned, (b) multivariate, (c) temporally compounding, and (d) spatially compounding (Zscheischler et al., 2020). The user can choose critical thresholds based on statistical analyses or define a multivariable function to assess the tipping points.
+compound-extremes is easy to configure and extend with custom functionalities and interface with other frameworks, making it an essential element for creating a continuous and reproducible pipeline for compound extreme analyses.
+In the first application, we aim to identify under what conditions physical and economic tipping points for ski resorts may occur under changing climate. And in the second application, we show the analyses for compound concurrent hot day and tropical night extremes in Switzerland.
