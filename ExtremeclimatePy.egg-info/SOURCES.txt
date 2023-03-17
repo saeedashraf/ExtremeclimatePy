@@ -3,8 +3,10 @@ MANIFEST.in
 README.md
 pyproject.toml
 setup.cfg
+ExtremeclimatePy/UserIndex.py
 ExtremeclimatePy/__init__.py
 ExtremeclimatePy/compoundanalyzer_v4_beta.py
+ExtremeclimatePy/compoundanalyzer_v5_beta.py
 ExtremeclimatePy.egg-info/PKG-INFO
 ExtremeclimatePy.egg-info/SOURCES.txt
 ExtremeclimatePy.egg-info/dependency_links.txt

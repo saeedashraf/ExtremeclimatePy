@@ -1,2 +1,0 @@
-Tmin_weight
-1

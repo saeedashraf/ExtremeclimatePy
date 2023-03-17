@@ -584,7 +584,7 @@ class solver_CCD(read_inputdata):
             df1.to_csv(outputFile, index = False)
         
         print('Done.... end of calculations')
-    #print("Goodbye!")
+    print("Goodbye!")
 
 ###### START Of the API ######
 #from datetime import date
