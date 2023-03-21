@@ -1,4 +1,7 @@
 ./ExtremeclimatePy/compoundanalyzer_v2_alpha.py
 ./ExtremeclimatePy/compoundanalyzer_v3_alpha.py
+./ExtremeclimatePy/compoundanalyzer_v4_beta.py
 ./setup.py
 ./build
+./dist
+./ExtremeclimatePy.egg-info

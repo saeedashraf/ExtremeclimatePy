@@ -8,8 +8,8 @@ import shutil
 import time
 from matplotlib import pyplot as plt
 import collections
-#from UserIndex import UserIndex
-from ExtremeclimatePy.UserIndex import UserIndex
+#from UserModel import UserModel
+from ExtremeclimatePy.UserModel import UserModel
 
 class read_inputdata:
     
@@ -263,25 +263,9 @@ class RCP_Model:
             
         else:
             climateModel = self.nRCP26 + self.nRCP45 + max(1, round(self.input2*self.nRCP85))
-            
+
         return (int(climateModel))
-    
-# class UserIndex:
-#     final_var_threshold = 10
-
-#     def __init__(self, Hmd, Pcp, Slr, Tmn, Tmx, Wnd):
-#         self.Hmd = Hmd
-#         self.Pcp = Pcp
-#         self.Slr = Slr
-#         self.Tmn = Tmn
-#         self.Tmx = Tmx
-#         self.Wnd = Wnd
-        
-#     def compute_final_var(self):
-#         return self.Hmd + self.Pcp + self.Slr + self.Tmn + self.Tmx + self.Wnd
-
-#     def operatore_final_var(self):
-#         return UserIndex.final_var_threshold
+            
 
 class solver_CCD(read_inputdata):
     #def __init__(self, root, start_date, end_date, xRCP, xClimateModel, Xfactor1, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, *args, **kwargs):
@@ -401,7 +385,7 @@ class solver_CCD(read_inputdata):
 
         
         '''6.2 making a header for output files'''
-        print('end 111')
+        print('end part 1 internal calculations')
 
         '''6.3 defining the length of simulations and scenarios'''
         # for Generalization "/ 2" should be corrected because it is for Tmax Tmin
@@ -527,16 +511,27 @@ class solver_CCD(read_inputdata):
                 #userdata = UserIndex(**{k: todayVar[k] for k in todayVar_keys})
                 
                 #userdata = UserIndex(**{f"{todayVar_keys[i]}": todayVar[i] for i in range(len(todayVar_keys))})
-                userdata = UserIndex(**{f"{caseStudyStns_keys[i]}": todayVar[todayVar_keys[i]] for i in range(len(self.args))})
+                userdata = UserModel(**{f"{caseStudyStns_keys[i]}": todayVar[todayVar_keys[i]] for i in range(len(self.args))})
 
                 
                 #Compute the value of final_var
                 final_var[final_var_keys[k]][0] = userdata.compute_final_var()
                 total[total_keys[k]][0,(2*len(self.args) + 2)] = final_var[final_var_keys[k]][0]
-                if final_var[final_var_keys[k]][0] >= userdata.operatore_final_var():
+                
+                # if final_var[final_var_keys[k]][0] >= userdata.threshold_final_var():
+                #     is_final_var_extremes[is_final_var_extremes_keys[k]][0] = 1
+                # else:  
+                #     is_final_var_extremes[is_final_var_extremes_keys[k]][0] = 0
+
+                expression = f"final_var[final_var_keys[k]][0] {dic_operator[userdata.operator_final_var]} userdata.threshold_final_var()"
+                result = eval(expression)
+
+                if result == True:
                     is_final_var_extremes[is_final_var_extremes_keys[k]][0] = 1
-                else:  
+                else:
                     is_final_var_extremes[is_final_var_extremes_keys[k]][0] = 0
+
+
                 len_final_var_extremes[len_final_var_extremes_keys[k]][0] = 1 if (is_final_var_extremes[is_final_var_extremes_keys[k]][0] == 1) else 0
                 total[total_keys[k]][0,(2*len(self.args) + 3)] = is_final_var_extremes[is_final_var_extremes_keys[k]][0]
                 total[total_keys[k]][0,(2*len(self.args) + 4)] = len_final_var_extremes[len_final_var_extremes_keys[k]][0]
@@ -591,15 +586,27 @@ class solver_CCD(read_inputdata):
                     #userdata = UserIndex(Hmd=todayVar[todayVar_keys[0]], Pcp=todayVar[todayVar_keys[1]], Slr=todayVar[todayVar_keys[2]], Tmn=todayVar[todayVar_keys[3]], Tmx=todayVar[todayVar_keys[4]], Wnd=todayVar[todayVar_keys[5]])
                     #userdata = UserIndex(**{i: todayVar[i] for i in todayVar_keys})
                     #userdata = UserIndex(**{f"{todayVar_keys[i]}": todayVar[i] for i in range(len(todayVar_keys))})
-                    userdata = UserIndex(**{f"{caseStudyStns_keys[i]}": todayVar[todayVar_keys[i]] for i in range(len(self.args))})
+                    userdata = UserModel(**{f"{caseStudyStns_keys[i]}": todayVar[todayVar_keys[i]] for i in range(len(self.args))})
 
                     #Compute the value of final_var
                     final_var[final_var_keys[k]][t-1] = userdata.compute_final_var()
                     total[total_keys[k]][t-1,(2*len(self.args) + 2)] = final_var[final_var_keys[k]][t-1]
-                    if final_var[final_var_keys[k]][t-1] >= userdata.operatore_final_var():
+
+
+                    # if final_var[final_var_keys[k]][t-1] >= userdata.operatore_final_var():
+                    #     is_final_var_extremes[is_final_var_extremes_keys[k]][t-1] = 1
+                    # else:  
+                    #     is_final_var_extremes[is_final_var_extremes_keys[k]][t-1] = 0
+                    
+                    expression = f"final_var[final_var_keys[k]][t-1] {dic_operator[userdata.operator_final_var]} userdata.threshold_final_var()"
+                    result = eval(expression)
+
+                    if result == True:
                         is_final_var_extremes[is_final_var_extremes_keys[k]][t-1] = 1
-                    else:  
+                    else:
                         is_final_var_extremes[is_final_var_extremes_keys[k]][t-1] = 0
+                    
+
                     len_final_var_extremes[len_final_var_extremes_keys[k]][t-1] = (len_final_var_extremes[len_final_var_extremes_keys[k]][t-2] + is_final_var_extremes[is_final_var_extremes_keys[k]][t-1]) \
                     if (is_final_var_extremes[is_final_var_extremes_keys[k]][t-1] == 1) else 0
                     total[total_keys[k]][t-1,(2*len(self.args) + 3)] = is_final_var_extremes[is_final_var_extremes_keys[k]][t-1]
@@ -679,7 +686,7 @@ class solver_CCD(read_inputdata):
 ###### START Of the API ######
 # from datetime import date
 # from ExtremeclimatePy import compoundanalyzer_v5_beta
-# from ExtremeclimatePy.UserIndex import UserIndex
+# from ExtremeclimatePy.UserModel import UserModel
 
 
 # # the address of the input folder "input" should not be in the address
@@ -697,7 +704,7 @@ class solver_CCD(read_inputdata):
 # deepuncertainty_rand = 2
 
 # #CCD = compoundanalyzer_v4_beta.solver_CCD(root, start_date, end_date, xRCP, xClimateModel, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Hmd', 'Pcp', 'Slr', 'Tmn','Tmx', 'Wnd')
-# CCD = compoundanalyzer_v5_beta.solver_CCD(root, start_date, end_date, xRCP, xClimateModel, nObs, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Hmd', 'Pcp', 'Slr', 'Tmn','Tmx', 'Wnd')
+# CCD = solver_CCD(root, start_date, end_date, xRCP, xClimateModel, nObs, nRCP26, nRCP45, nRCP85, deepuncertainty_rand, 'Hmd', 'Pcp', 'Slr', 'Tmn','Tmx', 'Wnd')
 # CCD_Pcp_Tmn_Tmx2 = CCD.ccd_calc()
 
 
