@@ -2,6 +2,8 @@
 ./ExtremeclimatePy/compoundanalyzer_v3_alpha.py
 ./ExtremeclimatePy/compoundanalyzer_v4_beta.py
 ./setup.py
-./build
-./dist
-./ExtremeclimatePy.egg-info
+./gitignore
+./ven_ExtremePy
+./ExtremeclimatePy/ven_ExtremePy
+./ExtremeclimatePy/gitignore
+./ExtremeclimatePy/ExtremeclimatePy/gitignore

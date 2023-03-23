@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: ExtremeclimatePy
+Version: 0.0.3.2
+Summary: analyzing compound extreme events
+Home-page: https://github.com/saeedashraf/ExtremeclimatePy
+Author: Saeid A. Vaghefi, Veruska Muccione
+Author-email: saeid.vaghefi@geo.uzh.ch, veruska.muccione@geo.uzh.ch
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE.MD

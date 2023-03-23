@@ -1,1 +1,3 @@
+include ExtremeclimatePy/ExtremeclimatePy/examples/*
 include ExtremeclimatePy/examples/*
+include ExtremeclimatePy/*.py

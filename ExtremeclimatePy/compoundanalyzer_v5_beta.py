@@ -61,7 +61,6 @@ class read_inputdata:
         print('******2**********')
         print(filesA[0])
         print(filesA[1])
-        print('****************')
         print('******3**********')
         print(climate_ref_Files)
         print('****************')
